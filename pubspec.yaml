@@ -1,0 +1,11 @@
+name: jsonx
+description: Optimized JSON parser for Dart.
+version: 0.0.0
+author: Tobe O
+homepage: https://github.com/thosakwe/jsonx.git
+environment:
+  sdk: ">=1.19.0"
+depdendencies:
+  charcode: ^1.0.0
+dev_dependencies:
+  test: ^0.12.0
