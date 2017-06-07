@@ -1,4 +1,3 @@
-import 'package:charcode/charcode.dart';
 import 'package:jsonx/jsonx.dart' as jsonx;
 import 'package:test/test.dart';
 
@@ -24,13 +23,13 @@ main() {
       var ast = jsonx.parseAst('"hello"');
       print(ast);
       expect(ast.type, jsonx.NodeType.STRING);
-      expect(ast.text, 'hello'.codeUnits);
+      expect(ast.text, 'hello');
     });
 
     test('number', () {
       var ast = jsonx.parseAst('24.5');
       expect(ast.type, jsonx.NodeType.NUMBER);
-      expect(ast.text, '24.5'.codeUnits);
+      expect(ast.text, '24.5');
     });
   });
 
@@ -51,9 +50,9 @@ main() {
       expect(first.children, hasLength(2));
       var a = first.children[0], b = first.children[1];
       expect(a.type, jsonx.NodeType.STRING);
-      expect(a.text, [$a]);
+      expect(a.text, 'a');
       expect(b.type, jsonx.NodeType.STRING);
-      expect(b.text, [$b]);
+      expect(b.text, 'b');
     });
 
     test('multiple items', () {
@@ -76,7 +75,7 @@ main() {
       expect(ast.children, hasLength(1));
       var first = ast.children.first;
       expect(first.type, jsonx.NodeType.STRING);
-      expect(first.text, [$a]);
+      expect(first.text, 'a');
     });
 
     test('array:multiple items', () {

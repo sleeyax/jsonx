@@ -11,14 +11,14 @@ enum NodeType {
 
 class Node {
   final NodeType type;
-  final List<int> text;
+  final String text;
   final List<Node> children;
-  Node(this.type, {this.text = const [], this.children = const []});
+  Node(this.type, {this.text, this.children = const []});
 
   @override
   String toString() {
-    if (text?.isNotEmpty == true)
-      return '"' + new String.fromCharCodes(text) + '" => $type';
+    if (text != null)
+      return '"$text" => $type';
     else if (children?.isNotEmpty == true)
       return '"' +
           children.map((c) => c.toString()).toList().toString() +

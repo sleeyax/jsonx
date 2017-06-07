@@ -47,8 +47,7 @@ main() {
   });
 
   test('cannot convert raw key-value pair', () {
-    var tokens = jsonx.scan('"a":2'.codeUnits);
-    var kv = new jsonx.Parser(tokens).parseKeyValuePair();
+    var kv = new jsonx.Parser('"a":2'.codeUnits).parseKeyValuePair();
     expect(() => jsonx.astToDart(kv), throwsArgumentError);
   });
 }

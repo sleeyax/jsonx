@@ -1,273 +1,153 @@
-import 'package:charcode/charcode.dart';
 import 'package:jsonx/jsonx.dart';
+import 'package:matcher/matcher.dart';
 import 'package:test/test.dart';
 
 main() {
-  group('literals', () {
-    test('true', () {
-      var tokens = scan('true'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.TRUE);
-    });
-
-    test('false', () {
-      var tokens = scan('false'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.FALSE);
-    });
-
-    test('null', () {
-      var tokens = scan('null'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.NULL);
-    });
+  test('symbols+literals', () {
+    expect('{', equalsScanned(TokenType.LBRACE));
+    expect('}', equalsScanned(TokenType.RBRACE));
+    expect('[', equalsScanned(TokenType.LBRACKET));
+    expect(']', equalsScanned(TokenType.RBRACKET));
+    expect(':', equalsScanned(TokenType.COLON));
+    expect(',', equalsScanned(TokenType.COMMA));
+    expect('true', equalsScanned(TokenType.TRUE));
+    expect('false', equalsScanned(TokenType.FALSE));
+    expect('null', equalsScanned(TokenType.NULL));
   });
 
-  group('symbols', () {
-    test('left brace', () {
-      var tokens = scan('{'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.LBRACE);
-    });
-
-    test('right brace', () {
-      var tokens = scan('}'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.RBRACE);
-    });
-
-    test('left bracket', () {
-      var tokens = scan('['.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.LBRACKET);
-    });
-
-    test('right bracket', () {
-      var tokens = scan(']'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.RBRACKET);
-    });
-
-    test('colon', () {
-      var tokens = scan(':'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.COLON);
-    });
-
-    test('comma', () {
-      var tokens = scan(','.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isNull);
-      expect(tokens.first.type, TokenType.COMMA);
-    });
+  test('numbers', () {
+    expect('2', equalsScanned(TokenType.NUMBER, '2'));
+    expect('-2', equalsScanned(TokenType.NUMBER, '-2'));
+    expect('24', equalsScanned(TokenType.NUMBER, '24'));
+    expect('-24', equalsScanned(TokenType.NUMBER, '-24'));
+    expect('24.42', equalsScanned(TokenType.NUMBER, '24.42'));
+    expect('-24.42', equalsScanned(TokenType.NUMBER, '-24.42'));
+    expect('2e5', equalsScanned(TokenType.NUMBER, '2e5'));
+    expect('-2e5', equalsScanned(TokenType.NUMBER, '-2e5'));
+    expect('24e5', equalsScanned(TokenType.NUMBER, '24e5'));
+    expect('-24e5', equalsScanned(TokenType.NUMBER, '-24e5'));
+    expect('2.4e5', equalsScanned(TokenType.NUMBER, '2.4e5'));
+    expect('-2.4e5', equalsScanned(TokenType.NUMBER, '-2.4e5'));
+    expect('2.4e-5', equalsScanned(TokenType.NUMBER, '2.4e-5'));
+    expect('-2.4e-5', equalsScanned(TokenType.NUMBER, '-2.4e-5'));
   });
 
-  group('numbers', () {
-    test('positive integer', () {
-      var tokens = scan('24'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$2, $4]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('negative integer', () {
-      var tokens = scan('-24'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$minus, $2, $4]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('positive decimal', () {
-      var tokens = scan('24.42'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$2, $4, $dot, $4, $2]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('negative decimal', () {
-      var tokens = scan('-24.42'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$minus, $2, $4, $dot, $4, $2]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('positive int with e', () {
-      var tokens = scan('24e5'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$2, $4, $e, $5]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('negative int with e', () {
-      var tokens = scan('-24E5'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$minus, $2, $4, $E, $5]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('positive double with e', () {
-      var tokens = scan('2.2e5'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$2, $dot, $2, $e, $5]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-
-    test('negative double with e', () {
-      var tokens = scan('-24.2E5'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$minus, $2, $4, $dot, $2, $E, $5]);
-      expect(tokens.first.type, TokenType.NUMBER);
-    });
-  });
-
-  group('strings', () {
-    test('plain string', () {
-      var tokens = scan('"hello"'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$h, $e, $l, $l, $o]);
-      expect(tokens.first.type, TokenType.STRING);
-    });
-
-    test('empty string', () {
-      var tokens = scan('""'.codeUnits);
-      print(tokens);
-      expect(tokens, hasLength(1));
-      expect(tokens.first.text, isEmpty);
-      expect(tokens.first.type, TokenType.STRING);
-    });
-
-    group('escape sequences', () {
-      test('backslash', () {
-        var tokens = scan('"\\\\"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [$backslash]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-
-      test('backspace', () {
-        var tokens = scan('"\\b"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [0x08]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-
-      test('line feed', () {
-        var tokens = scan('"\\f"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [0x0C]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-
-      test('newline', () {
-        var tokens = scan('"\\n"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [$lf]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-
-      test('carriage return', () {
-        var tokens = scan('"\\r"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [$cr]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-
-      test('tab', () {
-        var tokens = scan('"\\t"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [$tab]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-
-      test('redundant escape', () {
-        var tokens = scan('"\\p"'.codeUnits);
-        print(tokens);
-        expect(tokens, hasLength(1));
-        expect(tokens.first.text, [$p]);
-        expect(tokens.first.type, TokenType.STRING);
-      });
-    });
+  test('strings', () {
+    expect('""', equalsScanned(TokenType.STRING, ''));
+    expect('"a"', equalsScanned(TokenType.STRING, 'a'));
+    expect('"hello"', equalsScanned(TokenType.STRING, 'hello'));
+    expect('"\\\\"', equalsScanned(TokenType.STRING, '\\'));
+    expect('"\\b"', equalsScanned(TokenType.STRING, '\b'));
+    expect('"\\f"', equalsScanned(TokenType.STRING, '\f'));
+    expect('"\\n"', equalsScanned(TokenType.STRING, '\n'));
+    expect('"\\r"', equalsScanned(TokenType.STRING, '\r'));
+    expect('"\\t"', equalsScanned(TokenType.STRING, '\t'));
+    expect('"\\""', equalsScanned(TokenType.STRING, '"'));
+    expect('"\\p"', equalsScanned(TokenType.STRING, 'p'));
   });
 
   group('exceptions', () {
     test('newline in string', () {
-      expect(() => scan('"hello\n"'.codeUnits),
+      expect(() => scan('"hello\n"'),
           throwsA(const isInstanceOf<JsonxException>()));
     });
 
     test('unterminated string', () {
-      expect(() => scan('"hello'.codeUnits),
-          throwsA(const isInstanceOf<JsonxException>()));
+      expect(
+          () => scan('"hello'), throwsA(const isInstanceOf<JsonxException>()));
     });
 
     test('unexpected character', () {
-      expect(() => scan('!'.codeUnits),
-          throwsA(const isInstanceOf<JsonxException>()));
+      expect(() => scan('!'), throwsA(const isInstanceOf<JsonxException>()));
+      expect(() => scan('-'), throwsA(const isInstanceOf<JsonxException>()));
     });
 
     test('toString', () {
-      var exc = new JsonxException(2, 'two');
+      var exc = new JsonxException(2, 'two', 3, 'two ducks on the beach'.codeUnits);
       expect(exc.toString(), allOf(contains('2'), contains('two')));
     });
 
     test('toString without offset', () {
-      var exc = new JsonxException(null, 'two');
+      var exc = new JsonxException(null, 'two', 3, 'two ducks on the beach'.codeUnits);
       expect(exc.toString(), allOf(contains('two'), isNot(contains('offset'))));
     });
   });
 
-  test('scanner skips whitespace', () {
-    var tokens = scan('               \t\r\ntrue'.codeUnits);
-    print(tokens);
-    expect(tokens, hasLength(1));
-    expect(tokens.first.text, isNull);
-    expect(tokens.first.type, TokenType.TRUE);
+  test('skips whitespace', () {
+    expect('                   \n\r\ttrue', equalsScanned(TokenType.TRUE));
   });
 
-  test('scanner advances after tokens', () {
-    var tokens = scan('[1,"2",-3e25]'.codeUnits);
-    print(tokens);
-    expect(tokens, hasLength(7));
-    expect(tokens.map((t) => t.type).toList(), [
-      TokenType.LBRACKET,
-      TokenType.NUMBER,
-      TokenType.COMMA,
-      TokenType.STRING,
-      TokenType.COMMA,
-      TokenType.NUMBER,
-      TokenType.RBRACKET
-    ]);
+  test('advances after tokens', () {
+    var text = '24,"25",1'.codeUnits;
+    var p = new Parser(text);
+    var num = p.nextToken(),
+        comma = p.nextToken(),
+        str = p.nextToken(),
+        comma2 = p.nextToken(),
+        num2 = p.nextToken();
+    expect(num.type, TokenType.NUMBER);
+    expect(num.getText(text), '24');
+    expect(comma.type, TokenType.COMMA);
+    expect(comma.getText(text), isNull);
+    expect(str.type, TokenType.STRING);
+    expect(str.getText(text), '25');
+    expect(comma2.type, TokenType.COMMA);
+    expect(comma2.getText(text), isNull);
+    expect(num2.type, TokenType.NUMBER);
+    expect(num2.getText(text), '1');
+    expect(p.nextToken(), isNull);
   });
+
+  group('idiosyncrasies', () {
+    test('empty strings as object keys???', () {
+      var text = '{"empty":""}'.codeUnits;
+      var p = new Parser(text);
+
+      expect(p.nextToken().type, TokenType.LBRACE);
+
+      var empty = p.nextToken();
+      expect(empty.type, TokenType.STRING);
+      expect(empty.getText(text), 'empty');
+
+      expect(p.nextToken().type, TokenType.COLON);
+
+      expect(p.nextIs(TokenType.STRING), isTrue);
+      var emptyString = p.current;
+      expect(emptyString.type, TokenType.STRING);
+      expect(emptyString.getText(text), '');
+
+      p = new Parser(text);
+      var obj = p.parseObject();
+      print(obj);
+    });
+  });
+}
+
+Token scan(String text) => new Parser(text.codeUnits).nextToken();
+
+Matcher equalsScanned(TokenType type, [String text]) =>
+    new _EqualsScanned(type, text);
+
+class _EqualsScanned extends Matcher {
+  final TokenType targetType;
+  final String text;
+
+  _EqualsScanned(this.targetType, [this.text]);
+
+  @override
+  Description describe(Description description) => text == null
+      ? description.add('resolves to $targetType when scanned')
+      : description
+          .add('resolves to $targetType with text "$text" when scanned');
+
+  @override
+  bool matches(String item, Map matchState) {
+    var p = new Parser(item.codeUnits);
+    var tok = p.nextToken();
+    if (tok?.type != targetType)
+      return false;
+    else if (text == null) return true;
+    var actualText = tok.getText(item.codeUnits);
+    return equals(text).matches(actualText, matchState);
+  }
 }
