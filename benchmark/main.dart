@@ -71,6 +71,8 @@ class Benchmarker {
             ..writeln(
                 '$parserName: **FAILED** within ${sw.elapsedMicroseconds}us')
             ..writeln('\n```$e```');
+        } finally {
+          sink.writeln();
         }
       }
     }
