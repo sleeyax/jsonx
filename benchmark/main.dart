@@ -2,41 +2,63 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:jsonx/jsonx.dart' as jsonx;
+import 'deserialization/todo/main.dart' as todo;
 
 main() async {
+  await todo.main();
+
   var file = new File('BENCHMARK.md');
   var benchmarker = new Benchmarker(parsers: {
-    'JSONX': (List<int> buf) {
-      var tokens = jsonx.scan(buf);
-      var parser = new jsonx.Parser(tokens);
-      return jsonx.astToDart(parser.parseExpression());
-    },
-    'JSON.decode': (List<int> buf) => JSON.decode(UTF8.decode(buf))
+    'JSONX': jsonx.parse,
+    'JSONX (profiled)': profiledJsonx,
+    'JSON.decode': JSON.decode
   });
-  await Future
-      .forEach(['hello_world', 'schema', 'servlet'], benchmarker.addItem);
+  await Future.forEach(
+      ['hello_world', 'schema', 'servlet', 'twitter_credentials'],
+      benchmarker.addItem);
   var sink = await file.openWrite();
   await benchmarker.run(sink);
   await sink.close();
-  print('Benchmarking: DONE');
+  print('Main benchmarking: DONE');
 }
 
-typedef dynamic JsonParser(List<int> text);
+typedef T JsonParser<T>(String text);
 
-class Benchmarker {
-  final Map<String, JsonParser> parsers = {};
-  final Map<String, List<int>> items = {};
+profiledJsonx(String str) {
+  var sw = new Stopwatch();
+  sw.start();
+  var tokens = jsonx.scan(str.codeUnits);
+  sw..stop();
+  var scanTime = sw.elapsedMicroseconds;
+  sw
+    ..reset()
+    ..start();
+  var ast = new jsonx.Parser(tokens).parseExpression();
+  sw.stop();
+  var parseTime = sw.elapsedMicroseconds;
+  sw
+    ..reset()
+    ..start();
+  jsonx.astToDart(ast);
+  sw.stop();
+  var convertTime = sw.elapsedMicroseconds;
+  return {'scan': scanTime, 'parse': parseTime, 'convert': convertTime};
+}
+
+class Benchmarker<T> {
+  final Map<String, JsonParser<T>> parsers = {};
+  final Map<String, String> items = {};
 
   Benchmarker(
-      {Map<String, JsonParser> parsers: const {},
-      Map<String, List<int>> items: const {}}) {
+      {Map<String, JsonParser<T>> parsers: const {},
+      Map<String, String> items: const {}}) {
     this.parsers.addAll(parsers ?? {});
     this.items.addAll(items ?? {});
   }
 
   Future addItem(String key) async {
     var file = new File('benchmark/test_cases/$key.json');
-    var contents = await file.readAsBytes();
+    var contents = await file.readAsString();
     items[key] = contents;
   }
 
@@ -49,7 +71,7 @@ class Benchmarker {
     sink.writeln();
 
     for (var testName in items.keys) {
-      var jsonBytes = items[testName];
+      var jsonString = items[testName];
       print('TEST: $testName');
       sink.writeln('## Running Test: `$testName`');
 
@@ -59,7 +81,7 @@ class Benchmarker {
 
         try {
           sw.start();
-          var result = parser(jsonBytes);
+          var result = parser(jsonString);
           sw.stop();
           print('  $parserName: $result');
           sink.writeln(' **$parserName**: ${sw.elapsedMicroseconds}us');

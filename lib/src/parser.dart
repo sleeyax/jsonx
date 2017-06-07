@@ -17,7 +17,7 @@ class Parser {
   JsonxException _expected(String type) =>
       new JsonxException(null, 'expected \'$type\', found ${current?.type}');
 
-  bool next(TokenType type) {
+  bool _nextIs(TokenType type) {
     if (_index < tokens.length - 1 && tokens[_index + 1].type == type) {
       _index++;
       _current = null;
@@ -25,6 +25,18 @@ class Parser {
     }
     return false;
   }
+
+  bool openArray() => _nextIs(TokenType.LBRACKET);
+
+  bool closeArray() => _nextIs(TokenType.RBRACKET);
+
+  bool openObject() => _nextIs(TokenType.LBRACE);
+
+  bool closeObject() => _nextIs(TokenType.RBRACE);
+
+  bool comma() => _nextIs(TokenType.COMMA);
+
+  bool colon() => _nextIs(TokenType.COLON);
 
   Node parseExpression() {
     return parseArray() ??
@@ -37,10 +49,10 @@ class Parser {
   }
 
   Node parseArray() {
-    if (next(TokenType.LBRACKET)) {
+    if (openArray()) {
       var expr = parseExpression();
 
-      if (next(TokenType.RBRACKET)) {
+      if (closeArray()) {
         return new Node(NodeType.ARRAY, children: expr != null ? [expr] : []);
       }
 
@@ -48,9 +60,9 @@ class Parser {
 
       while (expr != null) {
         c.add(expr);
-        if (next(TokenType.RBRACKET))
+        if (closeArray())
           return new Node(NodeType.ARRAY, children: c);
-        if (!next(TokenType.COMMA)) throw _expected(',');
+        if (!comma()) throw _expected(',');
         expr = parseExpression();
       }
 
@@ -60,10 +72,10 @@ class Parser {
   }
 
   Node parseObject() {
-    if (next(TokenType.LBRACE)) {
+    if (openObject()) {
       var kv = parseKeyValuePair();
 
-      if (next(TokenType.RBRACE)) {
+      if (closeObject()) {
         return new Node(NodeType.OBJECT, children: kv != null ? [kv] : []);
       }
 
@@ -71,9 +83,9 @@ class Parser {
 
       while (kv != null) {
         c.add(kv);
-        if (next(TokenType.RBRACE))
+        if (closeObject())
           return new Node(NodeType.OBJECT, children: c);
-        if (!next(TokenType.COMMA)) throw _expected(',');
+        if (!comma()) throw _expected(',');
         kv = parseKeyValuePair();
       }
 
@@ -87,7 +99,7 @@ class Parser {
 
     if (string == null)
       return null;
-    else if (!(next(TokenType.COLON)))
+    else if (!colon())
       throw _expected(':');
     else {
       var expr = parseExpression();
@@ -97,35 +109,35 @@ class Parser {
   }
 
   Node parseString() {
-    if (next(TokenType.STRING))
+    if (_nextIs(TokenType.STRING))
       return new Node(NodeType.STRING, text: current.text);
     else
       return null;
   }
 
   Node parseNumber() {
-    if (next(TokenType.NUMBER))
+    if (_nextIs(TokenType.NUMBER))
       return new Node(NodeType.NUMBER, text: current.text);
     else
       return null;
   }
 
   Node parseTrue() {
-    if (next(TokenType.TRUE))
+    if (_nextIs(TokenType.TRUE))
       return new Node(NodeType.TRUE);
     else
       return null;
   }
 
   Node parseFalse() {
-    if (next(TokenType.FALSE))
+    if (_nextIs(TokenType.FALSE))
       return new Node(NodeType.FALSE);
     else
       return null;
   }
 
   Node parseNull() {
-    if (next(TokenType.NULL))
+    if (_nextIs(TokenType.NULL))
       return new Node(NodeType.NULL);
     else
       return null;

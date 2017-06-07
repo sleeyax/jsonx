@@ -1,28 +1,41 @@
 # JSON Parsing Benchmarks
 Comparing: 
   * JSONX
+  * JSONX (profiled)
   * JSON.decode
 
 ## Running Test: `hello_world`
- **JSONX**: 5388us
+ **JSONX**: 4723us
 
- **JSON.decode**: 7595us
+ **JSONX (profiled)**: 336us
+
+ **JSON.decode**: 5107us
 
 ## Running Test: `schema`
- **JSONX**: 688us
+ **JSONX**: 775us
 
- **JSON.decode**: 314us
+ **JSONX (profiled)**: 235us
+
+ **JSON.decode**: 289us
 
 ## Running Test: `servlet`
-**JSONX**: **FAILED** within 1809us
+ **JSONX**: 2633us
 
-```JSON syntax error: expected ',', found TokenType.NUMBER```
+ **JSONX (profiled)**: 1817us
 
- **JSON.decode**: 2117us
+ **JSON.decode**: 2887us
+
+## Running Test: `twitter_credentials`
+ **JSONX**: 4372us
+
+ **JSONX (profiled)**: 1448us
+
+ **JSON.decode**: 926us
 
 
 # Conclusion
-  * JSONX: 3038.00us average
-  * JSON.decode: 3342.00us average
+  * JSONX: 3125.75us average
+  * JSONX (profiled): 959.00us average
+  * JSON.decode: 2302.25us average
 
-Winner: **JSONX** (3.04ms average)
+Winner: **JSONX (profiled)** (0.96ms average)

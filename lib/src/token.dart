@@ -15,8 +15,8 @@ enum TokenType {
 class Token {
   final TokenType type;
   final Iterable<int> text;
-  Token(this.type, [this.text = const []]);
+  Token(this.type, [this.text]);
 
   @override
-  String toString() => '"${new String.fromCharCodes(text)}" => $type';
+  String toString() => '"${new String.fromCharCodes(text ?? [])}" => $type';
 }

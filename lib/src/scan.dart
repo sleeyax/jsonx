@@ -16,22 +16,22 @@ List<Token> scan(List<int> text) {
 
     switch (ch) {
       case $lbrace:
-        tokens.add(new Token(TokenType.LBRACE, [ch]));
+        tokens.add(new Token(TokenType.LBRACE));
         break;
       case $rbrace:
-        tokens.add(new Token(TokenType.RBRACE, [ch]));
+        tokens.add(new Token(TokenType.RBRACE));
         break;
       case $lbracket:
-        tokens.add(new Token(TokenType.LBRACKET, [ch]));
+        tokens.add(new Token(TokenType.LBRACKET));
         break;
       case $rbracket:
-        tokens.add(new Token(TokenType.RBRACKET, [ch]));
+        tokens.add(new Token(TokenType.RBRACKET));
         break;
       case $colon:
-        tokens.add(new Token(TokenType.COLON, [ch]));
+        tokens.add(new Token(TokenType.COLON));
         break;
       case $comma:
-        tokens.add(new Token(TokenType.COMMA, [ch]));
+        tokens.add(new Token(TokenType.COMMA));
         break;
       default:
         single = false;
@@ -47,7 +47,7 @@ List<Token> scan(List<int> text) {
           int c4 = text[i + 4];
           // Parse 'false'
           if (ch == $f && c1 == $a && c2 == $l && c3 == $s && c4 == $e) {
-            tokens.add(new Token(TokenType.FALSE, [ch, c1, c2, c3, c4]));
+            tokens.add(new Token(TokenType.FALSE));
             i += 4;
             continue;
           }
@@ -55,11 +55,11 @@ List<Token> scan(List<int> text) {
 
         // Parse 'true' or 'null'
         if (ch == $t && c1 == $r && c2 == $u && c3 == $e) {
-          tokens.add(new Token(TokenType.TRUE, [ch, c1, c2, c3]));
+          tokens.add(new Token(TokenType.TRUE));
           i += 3;
           continue;
         } else if (ch == $n && c1 == $u && c2 == $l && c3 == $l) {
-          tokens.add(new Token(TokenType.NULL, [ch, c1, c2, c3]));
+          tokens.add(new Token(TokenType.NULL));
           i += 3;
           continue;
         }
@@ -69,61 +69,32 @@ List<Token> scan(List<int> text) {
       if (_isNum(ch) ||
           ((ch == $minus) && i < text.length - 1 && _isNum(text[i + 1]))) {
         List<int> buf = [ch];
-        bool neg = ch == $minus;
-        int original = i;
 
         while (i < text.length - 1 && _isNum(text[i + 1])) {
           buf.add(text[++i]);
         }
 
-        int suffixOffset = 1;
-        if (neg) suffixOffset++;
-
-        // Possible decimal
-        int j = i + buf.length - 1;
-        if (neg)
-          j--;
-        else if (buf.length == 1) j++;
-        //print('i: $i, j: $j, buf.length: ${buf.length}');
-
-        /*try {
-          print('  buf: ' + new String.fromCharCodes(buf));
-          print('  text[j]: ' + new String.fromCharCode(text[j]));
-        } catch(e) {
-          // Fail silently...
-        }*/
-
-        if (j < text.length - 1 && text[j] == $dot && _isNum(text[j + 1])) {
-          buf.add(text[j]);
-          while (j < text.length - 1 && _isNum(text[j + 1])) {
-            buf.add(text[++j]);
-          }
+        // Optional decimal
+        if (i < text.length - 2 && text[i + 1] == $dot && _isNum(text[i + 2])) {
+          buf.add($dot);
           i++;
-        }
 
-        // Allow power of 10
-        int k = original + buf.length ;
-        //if (neg) k--;
-        //print('i: $i, k: $k, buf.length: ${buf.length}');
-
-        /*try {
-          print('  buf: ' + new String.fromCharCodes(buf));
-          print('  text[k]: ' + new String.fromCharCode(text[k]));
-        } catch (e) {
-          // Fail silently...
-        }*/
-
-        if (k < text.length - 1 &&
-            (text[k] == $E || text[k] == $e) &&
-            _isNum(text[k + 1])) {
-          buf.add(text[k]);
-          while (k < text.length - 1 && _isNum(text[k + 1])) {
-            buf.add(text[++k]);
+          while (i < text.length - 1 && _isNum(text[i + 1])) {
+            buf.add(text[++i]);
           }
         }
 
-        i += buf.length - 1;
-        if (neg) i--;
+        // Optional E/e
+        if (i < text.length - 2 &&
+            (text[i + 1] == $E || text[i + 1] == $e) &&
+            _isNum(text[i + 2])) {
+          buf.add(text[++i]);
+
+          while (i < text.length - 1 && _isNum(text[i + 1])) {
+            buf.add(text[++i]);
+          }
+        }
+
         tokens.add(new Token(TokenType.NUMBER, buf));
       }
 

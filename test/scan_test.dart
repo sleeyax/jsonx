@@ -8,7 +8,7 @@ main() {
       var tokens = scan('true'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$t, $r, $u, $e]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.TRUE);
     });
 
@@ -16,7 +16,7 @@ main() {
       var tokens = scan('false'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$f, $a, $l, $s, $e]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.FALSE);
     });
 
@@ -24,7 +24,7 @@ main() {
       var tokens = scan('null'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$n, $u, $l, $l]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.NULL);
     });
   });
@@ -34,7 +34,7 @@ main() {
       var tokens = scan('{'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$lbrace]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.LBRACE);
     });
 
@@ -42,7 +42,7 @@ main() {
       var tokens = scan('}'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$rbrace]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.RBRACE);
     });
 
@@ -50,7 +50,7 @@ main() {
       var tokens = scan('['.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$lbracket]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.LBRACKET);
     });
 
@@ -58,7 +58,7 @@ main() {
       var tokens = scan(']'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$rbracket]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.RBRACKET);
     });
 
@@ -66,7 +66,7 @@ main() {
       var tokens = scan(':'.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$colon]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.COLON);
     });
 
@@ -74,7 +74,7 @@ main() {
       var tokens = scan(','.codeUnits);
       print(tokens);
       expect(tokens, hasLength(1));
-      expect(tokens.first.text, [$comma]);
+      expect(tokens.first.text, isNull);
       expect(tokens.first.type, TokenType.COMMA);
     });
   });
@@ -252,7 +252,7 @@ main() {
     var tokens = scan('               \t\r\ntrue'.codeUnits);
     print(tokens);
     expect(tokens, hasLength(1));
-    expect(tokens.first.text, [$t, $r, $u, $e]);
+    expect(tokens.first.text, isNull);
     expect(tokens.first.type, TokenType.TRUE);
   });
 
