@@ -4,25 +4,25 @@ Comparing:
   * JSON.decode
 
 ## Running Test: `hello_world`
- JSONX: 4725us
+ **JSONX**: 5388us
 
- JSON.decode: 7032us
+ **JSON.decode**: 7595us
 
 ## Running Test: `schema`
- JSONX: 540us
+ **JSONX**: 688us
 
- JSON.decode: 332us
+ **JSON.decode**: 314us
 
 ## Running Test: `servlet`
-JSONX: **FAILED** within 1396us
+**JSONX**: **FAILED** within 1809us
 
 ```JSON syntax error: expected ',', found TokenType.NUMBER```
 
- JSON.decode: 2214us
+ **JSON.decode**: 2117us
 
 
 # Conclusion
-  * JSONX: 2632.50us average
-  * JSON.decode: 3192.67us average
+  * JSONX: 3038.00us average
+  * JSON.decode: 3342.00us average
 
-Winner: **JSONX** (2.63ms average)
+Winner: **JSONX** (3.04ms average)

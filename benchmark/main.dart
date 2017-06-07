@@ -62,14 +62,14 @@ class Benchmarker {
           var result = parser(jsonBytes);
           sw.stop();
           print('  $parserName: $result');
-          sink.writeln(' $parserName: ${sw.elapsedMicroseconds}us');
+          sink.writeln(' **$parserName**: ${sw.elapsedMicroseconds}us');
           timing[parserName].add(sw.elapsedMicroseconds);
         } catch (e) {
           sw.stop();
           print('  $parserName: FAILED');
           sink
             ..writeln(
-                '$parserName: **FAILED** within ${sw.elapsedMicroseconds}us')
+                '**$parserName**: **FAILED** within ${sw.elapsedMicroseconds}us')
             ..writeln('\n```$e```');
         } finally {
           sink.writeln();
